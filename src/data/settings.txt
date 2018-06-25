@@ -1,0 +1,32 @@
+# robot model
+ID=2
+
+# robot name
+NAME=robot.v1
+
+# screen settings
+WIDTH=1680
+HEIGHT=1050
+FRAME=True
+CURSOR=True
+RESPONSE_TIME=60
+SLEEP_TIME=30
+
+# debug
+PRINT_FONTS=0
+
+# logics
+MAX_REPAIR_ATTEMPTS=5
+
+# logging
+LOG_TITLE=pps
+
+# sleeper
+TIME_SLEEP=60
+
+# filter
+FILTER_CONTRAST=17
+FILTER_BRIGHNESS=0
+FILTER_WARM=60
+FILTER_SATURATION=5
+FILTER_SHARPEN=26

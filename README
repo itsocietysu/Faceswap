@@ -1,0 +1,11 @@
+## Project FaceSwap
+*Owner*: Daniil Savchuk
+*Customer*: SPbSTU
+*Manager*: Alexandr Bulekov
+
+## How to start develop:
+Clone the repo: ???
+Install all required packages: ??? (use by pip or something like this), DLIB could be installed from *whl* file from vendor folder. '''python pip install *.whl'''
+Use PyCharm-community
+Use sourcetree
+

@@ -1,0 +1,80 @@
+<doc>
+
+<string id="info_first_info_message" color="0,0,0" width="500" lspace="0" font="Calibri,bold,italic" size="32" pos="832,350">
+Выберите одного из ученых, кликнув по иконке ученого
+</string>
+
+<string id="info_second_info_message" color="0,0,0" width="600" lspace="0" font="Calibri,bold,italic" size="32" pos="370,510">
+Когда вы поймете, что готовы фотографироваться со своим новым лицом, просто нажмите на кнопку сфотографировать
+</string>
+
+<string id="info_third_info_message" color="0,0,0" width="800" lspace="0" font="Calibri,bold,italic" size="32" pos="500,750">
+После нажатия на кнопку "фото", будет произведен отсчет до 3х, после чего вы будете сфотографированы, а ваше фото можно будет напечатать на принтере, нажав соответсвующую кнопку
+</string>
+
+<string id="show_upload" color="255,255,255" width="300" lspace="0" font="liberationsans" size="36" pos="45,85">
+ЗАГРУЗИТЬ
+</string>
+
+<string id="show_redo" color="255,255,255" width="300" lspace="0" font="liberationsans" size="36" pos="55,85">
+ПЕРЕСНЯТЬ
+</string>
+
+<string id="info_exit" color="255,255,255" width="300" lspace="0" font="liberationsans" size="36" pos="90,85">
+ВЫЙТИ
+</string>
+
+<string id="start_photo" color="255,255,255" width="300" lspace="0" font="liberationsans" size="36" pos="115,110">
+СНЯТЬ ФОТО
+</string>
+
+<string id="start_video" color="255,255,255" width="300" lspace="0" font="liberationsans" size="36" pos="90,110">
+СНЯТЬ ВИДЕО
+</string>
+
+<string id="error_info_message1" color="0,0,0" width="600" lspace="0" font="liberationsans" size="48" pos="130,175">
+ТЕРМИНАЛ ВРЕМЕННО
+</string>
+
+<string id="error_info_message2" color="0,0,0" width="800" lspace="0" font="liberationsans" size="48" pos="250,280">
+НЕДОСТУПЕН
+</string>
+
+<string id="shot_info_processing1" color="0,0,0" width="780" lspace="0" font="liberationsans" size="48" pos="80,150">
+ПОЖАЛУЙСТА ПОДОЖДИТЕ
+</string>
+
+<string id="shot_info_processing2" color="0,0,0" width="780" lspace="0" font="liberationsans" size="26" pos="160,220">
+ИДЕТ ОБРАБОТКА ИЗОБРАЖЕНИЯ
+</string>
+
+<string id="shot_info_processing3" color="0,0,0" width="780" lspace="0" font="liberationsans,bold" size="28" pos="82,333">
+</string>
+
+<string id="video_info_processing1" color="0,0,0" width="780" lspace="0" font="liberationsans" size="48" pos="80,150">
+ПОЖАЛУЙСТА ПОДОЖДИТЕ
+</string>
+
+<string id="video_info_processing2" color="0,0,0" width="780" lspace="0" font="liberationsans" size="38" pos="210,220">
+ИДЕТ ЗАПИСЬ ВИДЕО
+</string>
+
+<string id="video_info_processing3" color="0,0,0" width="780" lspace="0" font="liberationsans,bold" size="38" pos="82,333">
+</string>
+
+<string id="upload_info_complete1" color="0,0,0" width="800" lspace="0" font="liberationsans" size="48" pos="50,150">
+ВАША ОЧЕРЕДЬ ПОСТАВЛЕНА
+</string>
+
+<string id="upload_info_complete2" color="0,0,0" width="800" lspace="0" font="liberationsans" size="48" pos="250,220">
+НА ЗАГРУЗКУ
+</string>
+
+<string id="upload_info_complete3" color="0,0,0" width="780" lspace="0" font="liberationsans,bold" size="28" pos="82,333">
+</string>
+
+<string id="show_text1" color="0,0,0" width="800" lspace="0" font="liberationsans" size="48" pos="60,150">
+ВИДЕО УСПЕШНО ОТСНЯТО
+</string>
+
+</doc>
