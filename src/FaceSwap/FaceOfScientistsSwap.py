@@ -1,6 +1,7 @@
 import dlib
 import cv2
 import numpy as np
+import scipy
 
 import models
 import NonLinearLeastSquares
@@ -52,7 +53,7 @@ class FaceOfScientistsSwap:
         return data
 
     def get_replacement_image(self, camera_img, id_scientist):
-        timer = TimerProfiler(True)
+        timer = TimerProfiler(False)
 
         timer.start()
         if camera_img is None:
@@ -96,8 +97,10 @@ class FaceOfScientistsSwap:
                 # rendering the model to an image
                 shape3D = utils_fs.getShape3D(self._mean3DShape, self._blendshapes, model_params)
                 timer.log_lap(timer.lap(), "Get shape")
-                self._renderer_device.draw_face(shape3D, self._current_render_scientist.get_face_texture(),
-                                                self._current_render_scientist.get_texture_coords())
+                faceTex = self._current_render_scientist.get_face_texture()
+                faceCords = self._current_render_scientist.get_texture_coords()
+                timer.log_lap(timer.lap(), "Render data")
+                self._renderer_device.draw_face(shape3D, faceTex, faceCords)
                 timer.log_lap(timer.lap(), "Render")
                 rendered_img = self._current_render_scientist.render(self._renderer_device.data_on_grid())
                 timer.log_lap(timer.lap(), "Grab frame")
@@ -108,7 +111,7 @@ class FaceOfScientistsSwap:
                 timer.log_lap(timer.lap(), "Color transfer")
                 camera_img = ImageProcessing.blendImages(rendered_img, camera_img, mask)
                 timer.log_lap(timer.lap(), "Blend")
-                self._renderer_device.update_grid()
+                #self._renderer_device.update_grid()
                 timer.log_lap(timer.lap(), "Refresh")
 
                 #    cameraImg = cv2.resize(cameraImg, (800, 600))

@@ -14,8 +14,8 @@ class RenderDevice:
         glutInit()
         glutInitWindowSize(self._width, self._height)
         glutCreateWindow("Drawmask")
-        glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH | GLUT_RGB)
-        glutDisplayFunc(self.draw_face)
+        glutInitDisplayMode(GLUT_DOUBLE)
+        #glutDisplayFunc(self.draw_face)
 
         glClearColor(0.0, 0.0, 0.0, 0.0)
         glColor3f(0.0, 0.0, 0.0)
@@ -32,14 +32,16 @@ class RenderDevice:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glBindTexture(GL_TEXTURE_2D, face_texture)
 
-        glBegin(GL_TRIANGLES)
-
-        for triangle in self._mesh:
-            for vertex in triangle:
-                glTexCoord2fv(texture_coords[:, vertex])
-                glVertex3fv(vertices[:, vertex])
-
-        glEnd()
+        vertex_coords = vertices.flatten('F')
+        tex_coords = texture_coords.flatten('F')
+        indices = self._mesh.flatten()
+        glEnableClientState(GL_VERTEX_ARRAY)
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY)
+        glVertexPointer(3, GL_FLOAT, 0, vertex_coords)
+        glTexCoordPointer(2, GL_FLOAT, 0, tex_coords)
+        glDrawElements(GL_TRIANGLES, len(indices), GL_UNSIGNED_INT, indices)
+        glDisableClientState(GL_COLOR_ARRAY)
+        glDisableClientState(GL_VERTEX_ARRAY)
         glFlush()
 
     #Get screen data

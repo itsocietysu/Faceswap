@@ -18,15 +18,15 @@ print "Press R to start recording to a video file"
 #http://sourceforge.net/projects/dclib/files/dlib/v18.10/shape_predictor_68_face_landmarks.dat.bz2
 
 #loading the keypoint detection model, the image and the 3D model
-predictor_path = "../shape_predictor_68_face_landmarks.dat"
-image_name = "../data/brad pitt.jpg"
+predictor_path = "./data/assets/shape_predictor_68_face_landmarks.dat"
+image_name = "./data/skins/Elon.jpg"
 #the smaller this value gets the faster the detection will work
 #if it is too small, the user's face might not be detected
 maxImageSizeForDetection = 320
 
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor(predictor_path)
-mean3DShape, blendshapes, mesh, idxs3D, idxs2D = utils_fs.load3DFaceModel("../candide.npz")
+mean3DShape, blendshapes, mesh, idxs3D, idxs2D = utils_fs.load3DFaceModel("./data/assets/candide.npz")
 
 projectionModel = models.OrthographicProjectionBlendshapes(blendshapes.shape[0])
 
@@ -56,6 +56,7 @@ while True:
 
             #rendering the model to an image
             shape3D = utils_fs.getShape3D(mean3DShape, blendshapes, modelParams)
+
             renderedImg = renderer.render(shape3D)
 
             #blending of the rendered face with the image
