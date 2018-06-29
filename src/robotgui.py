@@ -52,7 +52,8 @@ class RobotGUI:
 
     def renderGUI(self):
         for var in self.screens:
-            self.screens[var].draw()
+            if self.screens[var].visible:
+                self.screens[var].draw()
 
 class UIScreen:
     def __init__(self, name, parent):

@@ -4,7 +4,7 @@ from utils.TimerProfiler import *
 #tutaj src to obraz, z ktorego piksele beda wklejane do obrazu dst
 #feather amount to procent, sluzacy do sterowania wielkoscia obszaru, ktory bedzie poddany wagowaniu q
 def blendImages(src, dst, mask):
-    timer = TimerProfiler(True)
+    timer = TimerProfiler(False)
 
     timer.start()
 

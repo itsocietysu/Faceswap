@@ -15,12 +15,12 @@ import utils_fs
 
 from utils.TimerProfiler import *
 
-DETS_UPDATE = 3
+DETS_UPDATE = 1
 
 class FaceOfScientistsSwap:
     def __init__(self, cam_shape, images):
         self._predictor_path = "./data/assets/shape_predictor_68_face_landmarks.dat"
-        self._max_image_size_for_detection = 640
+        self._max_image_size_for_detection = 320
 
         self._detector = dlib.get_frontal_face_detector()
         self._predictor = dlib.shape_predictor(self._predictor_path)
@@ -53,7 +53,7 @@ class FaceOfScientistsSwap:
         return data
 
     def get_replacement_image(self, camera_img, id_scientist):
-        timer = TimerProfiler(False)
+        timer = TimerProfiler(True)
 
         timer.start()
         if camera_img is None:
@@ -102,8 +102,10 @@ class FaceOfScientistsSwap:
                 timer.log_lap(timer.lap(), "Render data")
                 self._renderer_device.draw_face(shape3D, faceTex, faceCords)
                 timer.log_lap(timer.lap(), "Render")
-                rendered_img = self._current_render_scientist.render(self._renderer_device.data_on_grid())
+                grid = self._renderer_device.data_on_grid()
                 timer.log_lap(timer.lap(), "Grab frame")
+                rendered_img = self._current_render_scientist.render(grid)
+                timer.log_lap(timer.lap(), "Adapt frame")
 
                 # blending of the rendered face with the image
                 mask = np.copy(rendered_img[:, :, 0])

@@ -11,7 +11,7 @@ class Capture:
         self._capture = None
         self._last_time = dt.now()
         self._last_frame = None
-        self._frequency = 1.0 / 30.0  # frames per seconds
+        self._frequency = 1.0 / 15.0  # frames per seconds
         self._shot = None
         self._is_active = True
 
@@ -27,7 +27,10 @@ class Capture:
     def _get_frame(self):
         tmp, self._last_frame = self._capture.read()
         clip_w = max((self._DESIRED_W - self._ASPECT_W) / 2, 0)
-        self._last_frame = cv2.flip(self._last_frame, 1)[:, clip_w:-clip_w]
+        if clip_w:
+            self._last_frame = cv2.flip(self._last_frame, 1)[:, clip_w:-clip_w]
+        else:
+            self._last_frame = cv2.flip(self._last_frame, 1)
 
     def acquire(self):
         logger = logging.getLogger("FaceSwap.Capture.acquire")

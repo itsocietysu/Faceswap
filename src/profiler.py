@@ -18,7 +18,7 @@ for item in data:
 
     table[key].append(val)
 
-with open('sublog.csv', 'wt') as outF:
+with open('sublog1.csv', 'wt') as outF:
     outF.write(','.join(table.keys()) + '\r\n')
     list_res = table.values()
 
