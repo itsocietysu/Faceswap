@@ -77,7 +77,7 @@ class Capture:
         return self._last_frame
 
     def shot(self):
-        self._shot = self._last_frame
+        self._shot = cv2.flip(self._last_frame, 1)
 
     def get_last_shot(self):\
         return self._shot
