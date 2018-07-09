@@ -109,9 +109,11 @@ class FaceOfScientistsSwap:
 
                 # blending of the rendered face with the image
                 mask = np.copy(rendered_img[:, :, 0])
-                rendered_img = ImageProcessing.colorTransfer(camera_img, rendered_img, mask)
+
+                camera_img = ImageProcessing.optimizedBlend(rendered_img, camera_img, mask)
+                #rendered_img = ImageProcessing.colorTransfer(camera_img, rendered_img, mask)
                 timer.log_lap(timer.lap(), "Color transfer")
-                camera_img = ImageProcessing.blendImages(rendered_img, camera_img, mask)
+                #camera_img = ImageProcessing.blendImages(rendered_img, camera_img, mask)
                 timer.log_lap(timer.lap(), "Blend")
                 #self._renderer_device.update_grid()
                 timer.log_lap(timer.lap(), "Refresh")
