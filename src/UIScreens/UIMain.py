@@ -96,19 +96,19 @@ class UIMain(UIScreen):
 
 
         # Info button
-        button = pygame.image.load("./sprites/buttonInfo.png")
-        buttonHov = pygame.image.load("./sprites/buttonInfoHov.png")
-        self.elements["info"] = UISpriteButton("info",
-                                               self.surface,
-                                               button,
-                                               buttonHov,
-                                               self.surface.get_rect().width - button.get_rect().width - self.margin,
-                                               self.surface.get_rect().top + self.margin,
-                                               {
-                                                   'click': self.transition
-                                               },
-                                               self,
-                                               2)
+        #button = pygame.image.load("./sprites/buttonInfo.png")
+        #buttonHov = pygame.image.load("./sprites/buttonInfoHov.png")
+        #self.elements["info"] = UISpriteButton("info",
+        #                                       self.surface,
+        #                                       button,
+        #                                       buttonHov,
+        #                                       self.surface.get_rect().width - button.get_rect().width - self.margin,
+        #                                       self.surface.get_rect().top + self.margin,
+        #                                       {
+        #                                           'click': self.transition
+        #                                       },
+        #                                       self,
+        #                                       2)
 
         UIScreen.initialize(self)
 
@@ -117,7 +117,7 @@ class UIMain(UIScreen):
         is_in = btn == None
 
         from_left = ["left_backpanel", "icon_1", "icon_2", "icon_3", "icon_4", "icon_5"]
-        from_right = ["info"]
+        #from_right = ["info"]
         from_down = ["photo"]
 
         DX = 300
@@ -133,8 +133,9 @@ class UIMain(UIScreen):
                     self.elements[elem].layer = self.max_layer - 1
                     self.elements[elem].insertTween(UIBumpEffect(1.2, DELAY, True))
 
-        for elem in from_right:
-            self.elements[elem].setTween(UITweenTranslate(DX, 0, DELAY, not is_in))
+        #info button
+        #for elem in from_right:
+        #    self.elements[elem].setTween(UITweenTranslate(DX, 0, DELAY, not is_in))
 
         for elem in from_down:
             self.elements[elem].setTween(UITweenTranslate(0, DY, DELAY, not is_in))
