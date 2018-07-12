@@ -14,9 +14,9 @@ class Filtering:
         return
 
     def filter(self, img, list_params):
-        for i in list_params:
-            if int(list_params[i]) != 0:
-                img = self.methods[i](img, list_params[i])
+        for _ in list_params:
+            if _ != 'name' and int(list_params[_]) != 0:
+                img = self.methods[_](img, list_params[_])
 
         return img
 
@@ -43,9 +43,6 @@ class Filtering:
 
         dst = src.copy().astype(np.float32)
 
-        #dst[:,:,2] = np.maximum(np.minimum((((dst[:,:,2] / 255.0 - 0.5) * adjust + 0.5) * 255.0), 255), 0)
-        #dst[:,:,1] = np.maximum(np.minimum((((dst[:,:,1] / 255.0 - 0.5) * adjust + 0.5) * 255.0), 255), 0)
-        #dst[:,:,0] = np.maximum(np.minimum((((dst[:,:,0] / 255.0 - 0.5) * adjust + 0.5) * 255.0), 255), 0)
         dst = np.maximum(np.minimum((((dst / 255.0 - 0.5) * adjust + 0.5) * 255.0), 255), 0)
 
         return dst.astype(np.uint8)

@@ -36,7 +36,7 @@ class RobotApp:
             if strtobool(self.settings.PRINT_FONTS):
                 fonts = pygame.font.get_fonts()
                 logger.info("Fonts " + str(fonts))
-    
+
             self.w = int(self.settings.WIDTH)
             self.h = int(self.settings.HEIGHT)
     
@@ -64,14 +64,20 @@ class RobotApp:
             self.sleeper_thread = deque()
             self.sleeper_time = int(self.settings.TIME_SLEEP)
 
-            self.filter_settings = {
-                'contrast':   self.settings.FILTER_CONTRAST,
-                'brighness':  self.settings.FILTER_BRIGHNESS,
-                'warm':       self.settings.FILTER_WARM,
-                'saturation': self.settings.FILTER_SATURATION,
-                'sharpen':    self.settings.FILTER_SHARPEN
-            }
-        except:
+            self.filter = []
+
+            for i in xrange(0, 5):
+                self.filter.append({
+                    'name':       self.filters['FILTER%s_NAME' % str(i)],
+                    'contrast':   self.filters['FILTER%s_CONTRAST' % str(i)],
+                    'brighness':  self.filters['FILTER%s_BRIGHNESS' % str(i)],
+                    'warm':       self.filters['FILTER%s_WARM' % str(i)],
+                    'saturation': self.filters['FILTER%s_SATURATION' % str(i)],
+                    'sharpen':    self.filters['FILTER%s_SHARPEN' % str(i)]
+                })
+            self.filter_id = 0
+
+        except Exception as e:
             logger.exception("RobotApp doesn't initialize")
             raise Exception("RobotApp doesn't initialize")            
 
@@ -84,6 +90,9 @@ class RobotApp:
 
             self.strings = Strings("data/strings.txt")
             logger.info("upload data/strings.txt")
+
+            self.filters = Settings("data/filters.txt")
+            logger.info("upload data/filters.txt")
         except Exception as e:
             logger.exception(e)
             raise Exception(e)
@@ -207,6 +216,7 @@ class RobotApp:
 
             def back_to_main(params):
                 self.gui.showUiScreen("main", 0)
+
 
             dispatchers = {
                 "main": {

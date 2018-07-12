@@ -12,16 +12,18 @@ class UIPrint(UIScreen):
         self._parent = parent
         self.fnumber = -1
         self.type = ""
+        self.shoot = False
+
+    def filtering(self, img):
+        # camera = self.parent.camera
+        # to_print = camera.apply_watermark(img, './data/assets/watermark.png')
+        return Filtering().filter(img, self._parent.filter[self._parent.filter_id])
 
     def create_photo(self, name, img):
-        filtering = Filtering()
-        camera = self.parent.camera
-        img = filtering.filter(img, self._parent.filter_settings)
-        to_print = camera.apply_watermark(img, './data/assets/watermark.png')
-
-
-        cv2.imwrite(name, to_print)
-        return to_print
+        #filtering = Filtering()
+        cv2.imwrite(name, self.filtering(img))
+        #for _ in self._parent.filter:
+        #    cv2.imwrite('./filter_results/tmp_to_print_%s.png' % _['name'], filtering.filter(img, _))
 
     def print_photo(self, obj):
         os.system("lp %s" % self.TEMP_NAME)
@@ -64,18 +66,120 @@ class UIPrint(UIScreen):
                                                 self,
                                                 1)
 
+        # Left backpanel
+        self.elements["left_backpanel"] = UISprite(self.surface,
+                                                   pygame.image.load("./sprites/left_bckg.png"),
+                                                   0,
+                                                   0,
+                                                   self,
+                                                   1)
+        self.fill_left_panel(0, 0, 200, 200, [1, 2, 3, 4, 5], 10)
+
+
         UIScreen.initialize(self)
+
+    def fill_left_panel(self, l, t, w, h, ids, v_offset):
+        i = 0
+        base_layer = 2
+        self.max_layer = len(ids) + 2 + base_layer
+
+        SCALE = 1.2
+        DELAY = 0.2
+
+        def insert_tween_in(btn):
+            btn_idx = int(btn.name.split('_')[1])
+
+            if btn_idx != self._parent.filter_id:
+                btn.layer = self.max_layer
+                btn.setTween(UIBumpEffect(SCALE, DELAY, True))
+            return
+
+        def insert_tween_out(btn):
+            btn_idx = int(btn.name.split('_')[1])
+
+            if btn_idx != self._parent.filter_id:
+                btn.layer = btn_idx + base_layer
+                btn.setTween(UIBumpEffect(SCALE, DELAY, False))
+
+            return
+
+        def on_icon_click(btn):
+            if self._parent.filter_id > 0:
+                self.elements["icon_%d" % self._parent.filter_id].setTween(UIBumpEffect(SCALE, DELAY, False))
+
+            btn.layer = self.max_layer - 1
+            self._parent.filter_id = int(btn.name.split('_')[1]) - 1
+
+        for idx in ids:
+            sc_a = pygame.transform.smoothscale(pygame.image.load("./sprites/filters/%d.png" % idx),
+                                                (w, h))
+            sc_d = pygame.transform.smoothscale(pygame.image.load("./sprites/filters/%d_d.png" % idx),
+                                                (w, h))
+
+            self.elements["icon_%d" % idx] = \
+                UISpriteButton("icon_%d" % idx,
+                               self.surface,
+                               sc_d,
+                               sc_a,
+                               l,
+                               t + (h + v_offset) * i,
+                               {
+                                   'click': on_icon_click,
+                                   'hoverin': insert_tween_in,
+                                   'hoverout': insert_tween_out,
+                               },
+                               self,
+                               base_layer + idx)
+
+            i += 1
+
+    def transition(self, btn=None):
+
+        is_in = btn == None
+
+        from_left = ["left_backpanel", "icon_1", "icon_2", "icon_3", "icon_4", "icon_5"]
+
+        DX = 300
+        DY = 300
+        DELAY = 0.2
+
+        for elem in from_left:
+            self.elements[elem].setTween(UITweenTranslate(-DX, 0, DELAY, not is_in))
+            if is_in and elem.startswith("icon"):
+                btn_idx = int(elem.split('_')[1])
+
+                if btn_idx == self._parent.storage.current_scientist_id:
+                    self.elements[elem].layer = self.max_layer - 1
+                    self.elements[elem].insertTween(UIBumpEffect(1.2, DELAY, True))
+
+
+        def delayedCallback():
+            self.parent.buttonClicked(btn)
+
+        if not is_in:
+            t = Timer(DELAY, delayedCallback)
+            t.start()
+
+    def draw(self):
+
+        self.create_photo(self.TEMP_NAME, self.img)
+        self.frame = pygame.image.load(self.TEMP_NAME)
+        self.elements["camera"].image = pygame.transform.smoothscale(self.frame, (self._parent.w, self._parent.h))
+        UIScreen.draw(self)
 
     def setVisible(self, val, params=()):
         UIScreen.setVisible(self, val, params)
 
         if val:
-            camera = self.parent.camera
-            camera.shot()
-            camera.release()
-            swapper = self.parent.swapper
-            self.frame = swapper.apply_effect(camera.get_last_shot())
-            self.create_photo(self.TEMP_NAME, self.frame)
+            if (self.shoot == False):
+                camera = self.parent.camera
+                camera.shot()
+                camera.release()
+                swapper = self.parent.swapper
+                self.img = swapper.apply_effect(camera.get_last_shot())
+                self.shoot = True
+            self.transition()
 
+            self.create_photo(self.TEMP_NAME, self.img)
             self.frame = pygame.image.load(self.TEMP_NAME)
             self.elements["camera"].image = pygame.transform.smoothscale(self.frame, (self._parent.w, self._parent.h))
