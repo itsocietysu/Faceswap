@@ -4,6 +4,7 @@ from robotgui import *
 import cv2
 import os
 from utils.Filtering import Filtering
+import numpy as np
 
 class UIPrint(UIScreen):
     def __init__(self, name, parent):
@@ -13,6 +14,9 @@ class UIPrint(UIScreen):
         self.fnumber = -1
         self.type = ""
         self.shoot = False
+        self.max_layer = -1
+        self.s = (200, 200)#(int(200), int(720 / (1080 / 200))) #(1080, 720)
+        self.isFirst = True
 
     def filtering(self, img):
         # camera = self.parent.camera
@@ -21,6 +25,7 @@ class UIPrint(UIScreen):
 
     def create_photo(self, name, img):
         cv2.imwrite(name, self.filtering(img))
+
 
     def print_photo(self, obj):
         os.system("lp %s" % self.TEMP_NAME)
@@ -43,7 +48,6 @@ class UIPrint(UIScreen):
            self.shoot = False
            self.parent.buttonClicked(btn)
 
-
         button = pygame.image.load("./sprites/back.png")
         buttonHov = pygame.image.load("./sprites/back_hov_b.png")
         self.elements["exit"] = UISpriteButton("exit",
@@ -55,15 +59,9 @@ class UIPrint(UIScreen):
                                                self.surface.get_rect().bottom - button.get_rect().height,
                                                {
                                                    'click': click_exit
-                                                   #self.parent.buttonClicked
                                                },
                                                self,
                                                1)
-
-
-
-
-
         # Print button
         button = pygame.image.load("./sprites/print.png")
         buttonHov = pygame.image.load("./sprites/print_hov_b.png")
@@ -87,9 +85,7 @@ class UIPrint(UIScreen):
                                                    0,
                                                    self,
                                                    1)
-        self.fill_left_panel(0, 0, 200, 200, [1, 2, 3, 4, 5], 10)
-
-
+        self.fill_left_panel(0, 0, self.s[0], self.s[1], [1, 2, 3, 4, 5], 10)
         UIScreen.initialize(self)
 
     def fill_left_panel(self, l, t, w, h, ids, v_offset):
@@ -102,7 +98,7 @@ class UIPrint(UIScreen):
         def insert_tween_in(btn):
             btn_idx = int(btn.name.split('_')[1])
 
-            if btn_idx != self._parent.filter_id:
+            if btn_idx != self._parent.filter_id + 1:
                 btn.layer = self.max_layer
                 btn.setTween(UIBumpEffect(SCALE, DELAY, True))
             return
@@ -110,25 +106,22 @@ class UIPrint(UIScreen):
         def insert_tween_out(btn):
             btn_idx = int(btn.name.split('_')[1])
 
-            if btn_idx != self._parent.filter_id:
+            if btn_idx != self._parent.filter_id + 1:
                 btn.layer = btn_idx + base_layer
                 btn.setTween(UIBumpEffect(SCALE, DELAY, False))
-
             return
 
         def on_icon_click(btn):
-            if self._parent.filter_id > 0:
-                self.elements["icon_%d" % self._parent.filter_id].setTween(UIBumpEffect(SCALE, DELAY, False))
-
+            self.elements["icon_%d" % (self._parent.filter_id + 1)].setTween(UIBumpEffect(SCALE, DELAY, False))
             btn.layer = self.max_layer - 1
             self._parent.filter_id = int(btn.name.split('_')[1]) - 1
 
+
         for idx in ids:
-            sc_a = pygame.transform.smoothscale(pygame.image.load("./sprites/filters/%d.png" % idx), (w, h))
-            sc_d = pygame.transform.smoothscale(pygame.image.load("./sprites/filters/%d_d.png" % idx), (w, h))
+            sc_a = pygame.transform.smoothscale(pygame.image.load("./sprites/filter/%d.png" % idx), (w, h))
             self.elements["icon_%d" % idx] = UISpriteButton("icon_%d" % idx,
                                                             self.surface,
-                                                            sc_d,
+                                                            sc_a,
                                                             sc_a,
                                                             l,
                                                             t + (h + v_offset) * i,
@@ -140,20 +133,21 @@ class UIPrint(UIScreen):
                                                             self,
                                                             base_layer + idx)
             i += 1
+        if self.isFirst == True:
+            insert_tween_in(self.elements["icon_1"])
+            self.isFirst = False
 
     def transition(self, btn=None):
         is_in = btn == None
         from_left = ["left_backpanel", "icon_1", "icon_2", "icon_3", "icon_4", "icon_5"]
         DX = 300
-        DY = 300
         DELAY = 0.2
 
         for elem in from_left:
             self.elements[elem].setTween(UITweenTranslate(-DX, 0, DELAY, not is_in))
             if is_in and elem.startswith("icon"):
                 btn_idx = int(elem.split('_')[1])
-
-                if btn_idx == self._parent.filter_id:
+                if btn_idx == self._parent.filter_id + 1:
                     self.elements[elem].layer = self.max_layer - 1
                     self.elements[elem].insertTween(UIBumpEffect(1.2, DELAY, True))
 
@@ -164,6 +158,21 @@ class UIPrint(UIScreen):
             t = Timer(DELAY, delayedCallback)
             t.start()
 
+
+    def addFilterButton(self, img):
+        size = 500
+        start = (int((720 - size) / 2), int((1080 - size) / 2))
+        stop = (720 + int((720 - size) / 2) + size, 1080 + int((1080 - size) / 2) + size)
+        img = img[start[0]:stop[0], start[1]:stop[1]]
+        img = cv2.resize(img, self.s)
+        for i in range(5):
+            new_img = Filtering().filter(img, self._parent.filter[i])
+            filter_name_img = cv2.imread("./sprites/filter/%i_name.png" % (i + 1))
+            filter_name_img = cv2.resize(filter_name_img, self.s)
+            new_img = cv2.add(new_img, filter_name_img)
+            cv2.imwrite("./sprites/filter/%i.png" % (i + 1), new_img)
+
+
     def draw(self):
         self.create_photo(self.TEMP_NAME, self.img)
         self.frame = pygame.image.load(self.TEMP_NAME)
@@ -173,12 +182,15 @@ class UIPrint(UIScreen):
     def setVisible(self, val, params=()):
         UIScreen.setVisible(self, val, params)
         if val:
+
             if (self.shoot == False):
                 camera = self.parent.camera
                 camera.shot()
                 camera.release()
                 swapper = self.parent.swapper
                 self.img = swapper.apply_effect(camera.get_last_shot())
+                self.addFilterButton(self.img)
+                self.initialize()
                 self.shoot = True
             self.transition()
             self.create_photo(self.TEMP_NAME, self.img)
