@@ -15,26 +15,65 @@ class UIPrint(UIScreen):
         self.type = ""
         self.shoot = False
         self.max_layer = -1
-        self.s = (200, 200)#(int(200), int(720 / (1080 / 200))) #(1080, 720)
-        self.isFirst = True
+        self.s = (188, 188)#(int(200), int(720 / (1080 / 200))) #(1080, 720)
 
-    def filtering(self, img):
-        # camera = self.parent.camera
-        # to_print = camera.apply_watermark(img, './data/assets/watermark.png')
-        return Filtering().filter(img, self._parent.filter[self._parent.filter_id])
+    def filtering(self, img, filter):
+        img = Filtering().filter(img, filter)
+        return img
+
+    def apply_watermark(self, img, water_path, params={}):
+        def_params = {'L': 0, 'R': 0, 'T': 0, 'D': 0}
+        def_params.update(params)
+        params = def_params
+        L = params['L']
+        R = params['R']
+        T = params['T']
+        D = params['D']
+        water = cv2.imread(water_path, -1)
+
+        water = cv2.resize(water, (img.shape[1] - (L + R), img.shape[0] - (T + D)))
+        shape = img.shape
+        if len(water):
+            alpha = img.copy().astype(np.float32)
+            alpha[T:shape[0] - D, L:shape[1] - R, 0] = water[:, :, 3] / 255.0
+            alpha[T:shape[0] - D, L:shape[1] - R, 1] = water[:, :, 3] / 255.0
+            alpha[T:shape[0] - D, L:shape[1] - R, 2] = water[:, :, 3] / 255.0
+
+            res = cv2.cvtColor(img, cv2.COLOR_BGR2BGRA)
+            res[T:shape[0] - D, L:shape[1] - R, 3] = 255
+
+            res[T:shape[0] - D, L:shape[1] - R, 0:3] = img[T:shape[0] - D, L:shape[1] - R] \
+                                                       * (1 - alpha[T:shape[0] - D, L:shape[1] - R]) \
+                                                       + water[:, :, 0:3] * (alpha[T:shape[0] - D, L:shape[1] - R])
+            return res
+
+        return None
 
     def create_photo(self, name, img):
-        cv2.imwrite(name, self.filtering(img))
-
+        img = self.filtering(img, self._parent.filter[self._parent.filter_id])
+        img = self.apply_watermark(img, "./data/assets/watermark_new.png")
+        cv2.imwrite(name, img)
 
     def print_photo(self, obj):
         os.system("lp %s" % self.TEMP_NAME)
         os.system("rm %s" % self.TEMP_NAME)
+        self.shoot = False
         self.parent.buttonClicked(obj)
 
+    def update_filter_prints(self):
+        self.filter_prints = self.get_filter_prints(self.img)
+
+
     def initialize(self):
+        self.max_layer = -1
+        self._parent.filter_id = 0
+
+
         cam_test = pygame.transform.smoothscale(pygame.image.load("./sprites/camtest.png"),
                                                 (self._parent.w, self._parent.h))
+        self.img = cv2.imread("./sprites/camtest.png")
+
+        self.update_filter_prints()
 
         self.elements["camera"] = UISprite(self.surface,
                                            cam_test,
@@ -45,8 +84,9 @@ class UIPrint(UIScreen):
 
         # Back button
         def click_exit(btn):
-           self.shoot = False
-           self.parent.buttonClicked(btn)
+            self.shoot = False
+            self.parent.buttonClicked(btn)
+
 
         button = pygame.image.load("./sprites/back.png")
         buttonHov = pygame.image.load("./sprites/back_hov_b.png")
@@ -80,7 +120,7 @@ class UIPrint(UIScreen):
 
         # Left backpanel
         self.elements["left_backpanel"] = UISprite(self.surface,
-                                                   pygame.image.load("./sprites/left_bckg.png"),
+                                                   pygame.image.load("./sprites/left_bckg1.png"),
                                                    0,
                                                    0,
                                                    self,
@@ -115,10 +155,16 @@ class UIPrint(UIScreen):
             self.elements["icon_%d" % (self._parent.filter_id + 1)].setTween(UIBumpEffect(SCALE, DELAY, False))
             btn.layer = self.max_layer - 1
             self._parent.filter_id = int(btn.name.split('_')[1]) - 1
+            self.create_photo(self.TEMP_NAME, self.img)
 
 
         for idx in ids:
-            sc_a = pygame.transform.smoothscale(pygame.image.load("./sprites/filter/%d.png" % idx), (w, h))
+            cnv_img = cv2.cvtColor(self.filter_prints[idx - 1], cv2.COLOR_BGR2RGB)
+            sc_a = pygame.transform.smoothscale(pygame.image.frombuffer(cnv_img.tostring(),
+                                                                        cnv_img.shape[1::-1],
+                                                                        "RGB"),
+                                                (w, h))
+
             self.elements["icon_%d" % idx] = UISpriteButton("icon_%d" % idx,
                                                             self.surface,
                                                             sc_a,
@@ -133,9 +179,6 @@ class UIPrint(UIScreen):
                                                             self,
                                                             base_layer + idx)
             i += 1
-        if self.isFirst == True:
-            insert_tween_in(self.elements["icon_1"])
-            self.isFirst = False
 
     def transition(self, btn=None):
         is_in = btn == None
@@ -159,40 +202,53 @@ class UIPrint(UIScreen):
             t.start()
 
 
-    def addFilterButton(self, img):
-        size = 500
-        start = (int((720 - size) / 2), int((1080 - size) / 2))
-        stop = (720 + int((720 - size) / 2) + size, 1080 + int((1080 - size) / 2) + size)
-        img = img[start[0]:stop[0], start[1]:stop[1]]
-        img = cv2.resize(img, self.s)
-        for i in range(5):
-            new_img = Filtering().filter(img, self._parent.filter[i])
-            filter_name_img = cv2.imread("./sprites/filter/%i_name.png" % (i + 1))
-            filter_name_img = cv2.resize(filter_name_img, self.s)
-            new_img = cv2.add(new_img, filter_name_img)
-            cv2.imwrite("./sprites/filter/%i.png" % (i + 1), new_img)
+    def get_filter_prints(self, img):
+        size = 500 # TODO MOVE TO SETTIGS
 
+        w = self.img.shape[1]
+        h = self.img.shape[0]
+
+        s = (int((h - size) / 2), int((w - size) / 2))
+        e = (int((h + size) / 2), int((w + size) / 2))
+
+        img = img[s[0]:e[0], s[1]:e[1]]
+
+        img = cv2.resize(img, self.s)
+
+        filter_prints = []
+        for i in range(5):
+            new_img = self.filtering(img, self._parent.filter[i])
+            new_img = self.apply_watermark(new_img, "./sprites/filter/%i_name.png" % (i + 1))
+            filter_prints.append(new_img)
+
+        return filter_prints
+
+
+    def redraw_filter_prints(self):
+        for idx in xrange(5):
+            cnv_img = cv2.cvtColor(self.filter_prints[idx], cv2.COLOR_BGR2RGB)
+            self.elements["icon_%d" % (idx + 1)].image_hover = self.elements["icon_%d" % (idx + 1)].image = \
+                pygame.transform.smoothscale(pygame.image.frombuffer(cnv_img.tostring(),
+                                                                     cnv_img.shape[1::-1],
+                                                                     "RGB"),
+                                                (self.s[0], self.s[1]))
 
     def draw(self):
-        self.create_photo(self.TEMP_NAME, self.img)
         self.frame = pygame.image.load(self.TEMP_NAME)
         self.elements["camera"].image = pygame.transform.smoothscale(self.frame, (self._parent.w, self._parent.h))
+        self.redraw_filter_prints()
         UIScreen.draw(self)
 
     def setVisible(self, val, params=()):
-        UIScreen.setVisible(self, val, params)
         if val:
-
             if (self.shoot == False):
+                self.shoot = True
                 camera = self.parent.camera
                 camera.shot()
                 camera.release()
                 swapper = self.parent.swapper
                 self.img = swapper.apply_effect(camera.get_last_shot())
-                self.addFilterButton(self.img)
-                self.initialize()
-                self.shoot = True
+                self.create_photo(self.TEMP_NAME, self.img)
+                self.update_filter_prints()
             self.transition()
-            self.create_photo(self.TEMP_NAME, self.img)
-            self.frame = pygame.image.load(self.TEMP_NAME)
-            self.elements["camera"].image = pygame.transform.smoothscale(self.frame, (self._parent.w, self._parent.h))
+        UIScreen.setVisible(self, val, params)
