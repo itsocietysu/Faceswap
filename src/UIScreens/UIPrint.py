@@ -152,7 +152,8 @@ class UIPrint(UIScreen):
             return
 
         def on_icon_click(btn):
-            self.elements["icon_%d" % (self._parent.filter_id + 1)].setTween(UIBumpEffect(SCALE, DELAY, False))
+            if self._parent.filter_id + 1 != int(btn.name.split("_")[1]):
+                self.elements["icon_%d" % (self._parent.filter_id + 1)].setTween(UIBumpEffect(SCALE, DELAY, False))
             btn.layer = self.max_layer - 1
             self._parent.filter_id = int(btn.name.split('_')[1]) - 1
             self.create_photo(self.TEMP_NAME, self.img)

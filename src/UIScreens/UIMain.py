@@ -6,6 +6,9 @@ from utils.TimerProfiler import *
 
 import cv2
 
+
+
+
 class UIMain(UIScreen):
     def __init__(self, name, parent):
         self.lastActionTime = 0
@@ -23,7 +26,7 @@ class UIMain(UIScreen):
         DELAY = 0.2
 
         def insert_tween_in(btn):
-            btn_idx = int(btn.name.split('_')[1])
+            btn_idx = int(btn.name.split("_")[1])
 
             if btn_idx != self._parent.storage.current_scientist_id:
                 btn.layer = self.max_layer
@@ -40,8 +43,11 @@ class UIMain(UIScreen):
             return
 
         def on_icon_click(btn):
-            if self._parent.storage.current_scientist_id > 0:
-                self.elements["icon_%d" % self._parent.storage.current_scientist_id].setTween(UIBumpEffect(SCALE, DELAY, False))
+            if self._parent.storage.current_scientist_id > 0 and\
+                    self._parent.storage.current_scientist_id != int(btn.name.split("_")[1]):
+                self.elements["icon_%d" % self._parent.storage.current_scientist_id].setTween(UIBumpEffect(SCALE,
+                                                                                                           DELAY,
+                                                                                                           False))
 
             btn.layer = self.max_layer - 1
             self._parent.storage.current_scientist_id = int(btn.name.split('_')[1])
@@ -76,8 +82,8 @@ class UIMain(UIScreen):
         self.elements["camera"] = UIProxySprite(self.surface, cam_test, self, 0)
 
         # Left backpanel
-        self.elements["left_backpanel"] = UISprite(self.surface, pygame.image.load("./sprites/left_bckg.png"), 0, 0, self, 1)
-        self.fill_left_panel(0, 0, 200, 200, [1, 2, 3, 4, 5], 10)
+        self.elements["left_backpanel"] = UISprite(self.surface, pygame.image.load("./sprites/left_bckg1.png"), 0, 0, self, 1)
+        self.fill_left_panel(0, 0, 188, 188, [1, 2, 3, 4, 5], 10)
 
         # Photo button
         button = pygame.image.load("./sprites/shot.png")
