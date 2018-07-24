@@ -30,56 +30,47 @@ class RobotApp:
         logger = logging.getLogger("FaceSwap.RobotApp.__init__")
         try:
             self.upload_initial_data()
-    
             self.storage = storage
-    
             if strtobool(self.settings.PRINT_FONTS):
                 fonts = pygame.font.get_fonts()
                 logger.info("Fonts " + str(fonts))
-
             self.w = int(self.settings.WIDTH)
             self.h = int(self.settings.HEIGHT)
-    
             pygame.init()
             pygame.display.set_mode((self.w, self.h),
-                                    pygame.NOFRAME if not strtobool(self.settings.FRAME) else 0)
-    
+                                    FULLSCREEN if not strtobool(self.settings.FRAME) else 0)
+
             if not strtobool(self.settings.CURSOR):
-                pygame.mouse.set_cursor((8, 8), (0, 0), (0, 0, 0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0, 0, 0))
-    
+                pygame.mouse.set_cursor((8, 8),
+                                        (0, 0),
+                                        (0, 0, 0, 0, 0, 0, 0, 0),
+                                        (0, 0, 0, 0, 0, 0, 0, 0))
+
             self.surface = pygame.display.get_surface()
-    
             self.gui = RobotGUI()
             logger.info("RobotGUI initialize")
-            
             self.events = []
-    
             self.camera = Capture()
             logger.info("Capture initialize")
-            
             self.swapper = FaseSwapEffect(self.camera)
             logger.info("FaseSwapEffect initialize")
             #self.swapper.set_active(True)
-
             self.sleeper_thread = deque()
             self.sleeper_time = int(self.settings.TIME_SLEEP)
-
             self.filter = []
-
             for i in xrange(0, 5):
                 self.filter.append({
-                    'name':       self.filters['FILTER%s_NAME' % str(i)],
-                    'contrast':   self.filters['FILTER%s_CONTRAST' % str(i)],
-                    'brighness':  self.filters['FILTER%s_BRIGHNESS' % str(i)],
-                    'warm':       self.filters['FILTER%s_WARM' % str(i)],
-                    'saturation': self.filters['FILTER%s_SATURATION' % str(i)],
-                    'sharpen':    self.filters['FILTER%s_SHARPEN' % str(i)]
+                    'name':       self.filters["FILTER%s_NAME" % str(i)],
+                    'contrast':   self.filters["FILTER%s_CONTRAST" % str(i)],
+                    'brighness':  self.filters["FILTER%s_BRIGHNESS" % str(i)],
+                    'warm':       self.filters["FILTER%s_WARM" % str(i)],
+                    'saturation': self.filters["FILTER%s_SATURATION" % str(i)],
+                    'sharpen':    self.filters["FILTER%s_SHARPEN" % str(i)]
                 })
             self.filter_id = 0
-
         except Exception as e:
             logger.exception("RobotApp doesn't initialize")
-            raise Exception("RobotApp doesn't initialize")            
+            raise Exception("RobotApp doesn't initialize")
 
 
     def upload_initial_data(self):
@@ -96,22 +87,19 @@ class RobotApp:
         except Exception as e:
             logger.exception(e)
             raise Exception(e)
-                                 
+
     def initialize_app(self):
         logger = logging.getLogger("FaceSwap.RobotApp.initialize_app")
         try:
             self.gui.init()
-
             # guiscreens
             # TODO: Need to remove hardcoded sleeper
             self.sleep_timeout = self.settings.SLEEP_TIME
             self.lastActionTime = 0
-
             screens = [UIMain("main", self), UICapture("capture", self), UIPrint("print", self), UIInfo("info", self), UIError("error", self)]
             for elem in screens:
                 elem.initialize()
                 self.gui.regScreen(elem)
-
             self.gui.showUiScreen("main", 0)
         except Exception as e:
             logger.exception(e)
@@ -119,13 +107,13 @@ class RobotApp:
 
     def run(self):
         logger = logging.getLogger("FaceSwap.RobotApp.run")
-        
+
         timer = TimerProfiler(False)
         timer.start()
         revfps = 1.0 / 30.0
         cur_time = time.clock()
         done = False
-        
+
         while not done:
             try:
                 updated_gui = False
