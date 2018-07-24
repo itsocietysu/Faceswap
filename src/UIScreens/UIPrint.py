@@ -219,7 +219,7 @@ class UIPrint(UIScreen):
         filter_prints = []
         for i in range(5):
             new_img = self.filtering(img, self._parent.filter[i])
-            new_img = self.apply_watermark(new_img, "./sprites/filter/%i_name.png" % (i + 1))
+            new_img = self.apply_watermark(new_img, "./sprites/filters/%i_name.png" % (i + 1))
             filter_prints.append(new_img)
 
         return filter_prints
