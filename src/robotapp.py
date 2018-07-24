@@ -96,8 +96,8 @@ class RobotApp:
             # TODO: Need to remove hardcoded sleeper
             self.sleep_timeout = self.settings.SLEEP_TIME
             self.lastActionTime = 0
-            screens = [UIMain("main", self), UICapture("capture", self), UIPrint("print", self), UIInfo("info", self), UIError("error", self)]
-            for elem in screens:
+            self.screens = [UIMain("main", self), UICapture("capture", self), UIPrint("print", self), UIInfo("info", self), UIError("error", self)]
+            for elem in self.screens:
                 elem.initialize()
                 self.gui.regScreen(elem)
             self.gui.showUiScreen("main", 0)
@@ -190,6 +190,7 @@ class RobotApp:
 
         logger = logging.getLogger("FaceSwap.RobotApp.EventSleeper")
         self.storage.current_scientist_id = -1
+        self.screens[2].shoot = False
         self.postEvent(UIEvent("show", "main", 0))
         logger.info("Thread finish")
 
